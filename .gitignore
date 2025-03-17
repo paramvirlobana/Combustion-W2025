@@ -6,8 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# Custom
+lovish/
+src/data/CollectionOfMechanisms/
+
 # Distribution / packaging
 .Python
+combustion_env/
 build/
 develop-eggs/
 dist/
