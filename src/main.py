@@ -5,50 +5,69 @@
 #   -- Paramvir Lobana --
 #===========================================================
 
-import os
 import numpy as np
+import os
+import sys
+import itertools
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
+from time import time
 import cantera as ct
 
 # User imports
 import modules.utilities as ut
+import modules.thermodynamics as thermo
 
 # Define directories and other system variables
 SCRIPT_DIR          = os.path.dirname(os.path.realpath(__file__))
-MECHANISM_DIR       = os.path.join(SCRIPT_DIR, 'data/Nitrogen/Glarborg/')
-Glarborg           = os.path.join(MECHANISM_DIR, 'Glarborg.yaml')
+MECHANISM_DIR       = os.path.join(SCRIPT_DIR, 'data', 'Nitrogen', 'Glarborg/')
+Glarborg            = os.path.join(MECHANISM_DIR, 'Glarborg.yaml')
+
+# Geometrical Inputs
+R_AIR_OUTER     =   14.29/1000      # [m]
+R_AIR_INNER     =   6.87/1000       # [m]
+R_FUEL          =   6.67/1000       # [m]
+
+A_AIR           =   np.pi * (R_AIR_OUTER**2 - R_AIR_INNER**2)
+A_FUEL          =   np.pi * R_FUEL**2
+
+
+print(A_AIR, A_FUEL)
 
 def main():
+    startTime = time()
+
+    DENSITY_AIR, DENSITY_FUEL, MW_AIR, MW_FUEL = thermo.calc_AirProperties()
+    AFR_STOIC = thermo.calc_AirFuelRatio(MW_AIR, MW_FUEL, stoic=True)
+
+    # Design variables
+    EQR_RICH_RANGE = np.linspace(1.0, 1.3, 21)
+
+    data_store = []
+
+    for EQR_RICH in EQR_RICH_RANGE:
+
+        AFR_RICH = AFR_STOIC / EQR_RICH
+
+        data_store.append({
+            'EQR_RICH':     EQR_RICH,
+            'AFR_RICH':     AFR_RICH,
+        })
+
+    df = pd.DataFrame(data_store)
+    print(df)
 
 
-    # This is just an example for mixing
-    gas_a = ct.Solution('air.yaml')
-    gas_a.TPX = 300.0, ct.one_atm, 'O2:0.21, N2:0.78, AR:0.01'
-    rho_a = gas_a.density
 
-    gas_b = ct.Solution(Glarborg)
-    gas_b.TPX = 300.0, ct.one_atm, 'NH3:1'
-    rho_b = gas_b.density
 
-    res_a = ct.Reservoir(gas_a, name='Air Reservoir')
-    res_b = ct.Reservoir(gas_b, name='Fuel Reservoir')
-    downstream = ct.Reservoir(gas_a, name='Outlet Reservoir')
 
-    gas_b.TPX = 300.0, ct.one_atm, 'O2:0.21, N2:0.78, AR:0.01'
-    mixer = ct.IdealGasReactor(gas_b, name='Mixer')
 
-    mfc1 = ct.MassFlowController(res_a, mixer, mdot=rho_a*2.5/0.21, name="Air Inlet")
-    mfc2 = ct.MassFlowController(res_b, mixer, mdot=rho_b*1.0, name="Fuel Inlet")
-
-    outlet = ct.Valve(mixer, downstream, K=10.0, name="Valve")
-
-    sim = ct.ReactorNet([mixer])
-
-    sim.advance_to_steady_state()
-
-    # view the state of the gas in the mixer
-    print(mixer.thermo.report())
-    
+    endTime = time()
+    print("")
+    print("STATS:")
+    print("-"*6)
+    print(f"Program took {(endTime - startTime):10.03f}s to execute.")
 
 
 if __name__ == '__main__':
