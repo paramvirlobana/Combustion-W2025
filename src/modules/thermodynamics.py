@@ -22,11 +22,11 @@ def calc_AdiabeticTemperature(phi, T_init:float=298.15, P_init:float=101325.0) -
 
 def calc_AirProperties():
     # Given
-    T_FUEL: float = 300  # [K]
-    P_FUEL: float = 3.0e+5 # [Pa]
+    T_FUEL: float = 500  # [K]
+    P_FUEL: float = 1.5e+6 # [Pa] = 15 bar
 
-    T_AIR: float = 1026.5
-    P_AIR: float = 3.0e+5    # [Pa] = 25 bar
+    T_AIR: float = 800
+    P_AIR: float = 1.2e+6    # [Pa] = 12 bar
 
     # Constants
     R_UNIV = 8.314462618  # J/(mol·K)
@@ -36,12 +36,13 @@ def calc_AirProperties():
     MW_N2       = Formula('N2').mass * 1e-3
     MW_NH3      = Formula('NH3').mass * 1e-3
 
-    MW_AIR  = 3.0 * (0.21 * MW_O2 + 0.79 * MW_N2)
-    MW_FUEL = 4.0 * MW_NH3
+    MW_AIR  = 0.21 * MW_O2 + 0.79 * MW_N2
+    MW_FUEL = MW_NH3
 
     # Specific gas constants (J/kg.K)
     R_AIR  = R_UNIV / MW_AIR
     R_FUEL = R_UNIV / MW_NH3
+
 
     # Densities [kg/m^3]
     DENSITY_AIR  = P_AIR  / (R_AIR  * T_AIR)
@@ -63,10 +64,10 @@ def calc_AirProperties():
 
 def calc_AirFuelRatio(MW_AIR:float, MW_FUEL:float, stoic:bool=False) -> float:
     """
-    Calculates the air to fuel ratio for hydrogen and air combustion.
+    Calculates the air to fuel ratio
     """
     if stoic:
-        AFR_STOIC = (MW_AIR / MW_FUEL)*4.76
+        AFR_STOIC = (MW_AIR / MW_FUEL) * 4.76 * (3.0 / 4.0)
         print(f"Stoichiometric AFR: {AFR_STOIC:>.6f}")
         return AFR_STOIC
     else:
