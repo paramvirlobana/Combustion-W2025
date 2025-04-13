@@ -1,5 +1,5 @@
-from molmass import Formula
 import cantera as ct
+from molmass import Formula
 
 def calc_AdiabeticTemperature(phi, T_init:float=298.15, P_init:float=101325.0) -> float:
 
@@ -23,10 +23,11 @@ def calc_AdiabeticTemperature(phi, T_init:float=298.15, P_init:float=101325.0) -
 def calc_AirProperties():
     # Given
     T_FUEL: float = 500  # [K]
-    P_FUEL: float = 1.5e+6 # [Pa] = 15 bar
+    P_FUEL: float = 1.5e+6 # [Pa] = 15 bar = 1.5 MPa
 
     T_AIR: float = 800
-    P_AIR: float = 1.2e+6    # [Pa] = 12 bar
+    P_AIR: float = 1.2e+6    # [Pa] = 12 bar = 1.2 MPa
+
 
     # Constants
     R_UNIV = 8.314462618  # J/(mol·K)
@@ -36,12 +37,12 @@ def calc_AirProperties():
     MW_N2       = Formula('N2').mass * 1e-3
     MW_NH3      = Formula('NH3').mass * 1e-3
 
-    MW_AIR  = 0.21 * MW_O2 + 0.79 * MW_N2
-    MW_FUEL = MW_NH3
+    MW_AIR  = 0.21 * MW_O2 * 1e-3 + 0.79 * MW_N2 * 1e-3
+    MW_FUEL = MW_NH3 * 1e-3
 
     # Specific gas constants (J/kg.K)
     R_AIR  = R_UNIV / MW_AIR
-    R_FUEL = R_UNIV / MW_NH3
+    R_FUEL = R_UNIV / MW_FUEL
 
 
     # Densities [kg/m^3]

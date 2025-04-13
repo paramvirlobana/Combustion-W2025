@@ -1,72 +1,66 @@
-import os
-import numpy as np
 import cantera as ct
+import numpy as np
+import matplotlib.pyplot as plt
 
-from mendeleev import element
+# Mechanism
+gas = ct.Solution('gri30.yaml')
 
-# Define directories and other system variables
-SCRIPT_DIR          = os.path.dirname(os.path.realpath(__file__))
-MECHANISM_DIR       = os.path.join(SCRIPT_DIR, 'data/Nitrogen/Glarborg/')
-Glarborg           = os.path.join(MECHANISM_DIR, 'Glarborg.yaml')
+# Fuel and air properties
+T_FUEL = 500.0     # K
+P_FUEL = 1.5e6     # Pa
 
+T_AIR = 800.0      # K
+P_AIR = 1.2e6      # Pa
 
-def main():
-    EQR_GLOBAL  = 0.4
-    EQR_RICH    = np.linspace(1.0, 1.3, 11)
+P_MIX = 1.0e6      # [Pa] Desired combustion pressure (can be avg or another value)
+phi_range = np.linspace(0.5, 1.5, 21)
+T_ad_list = []
 
-    o_mass = element('O').mass
-    h_mass = element('H').mass
-    n_mass = element('N').mass
+for phi in phi_range:
+    # 1. Set fuel stream
+    fuel = ct.Solution('gri30.yaml')
+    fuel.set_equivalence_ratio(phi=1.0, fuel='NH3', oxidizer='O2:1.0')  # Just NH3
+    fuel.TP = T_FUEL, P_FUEL
+    fuel_mole_frac = {'NH3': 1.0}
 
+    # 2. Set air stream
+    air = ct.Solution('gri30.yaml')
+    air.TP = T_AIR, P_AIR
+    air_mole_frac = {'O2': 1.0, 'N2': 3.76}
 
-    AF_STOIC = (3 * (o_mass * 2 + 3.76 * n_mass * 2)) / (4 * (n_mass + 3 * h_mass))
-    print(AF_STOIC)
-    
+    # 3. Determine stoichiometric O2 per mol NH3
+    # 4 NH3 + 3 O2 ⇒ O2/NH3 = 0.75 ⇒ at phi = 1.0
+    O2_per_NH3 = 0.75
+    air_O2_moles = (O2_per_NH3 / phi)
+    air_mole_frac_scaled = {k: v * air_O2_moles for k, v in air_mole_frac.items()}
 
-    return tad
+    # Combine streams
+    total_moles = 1.0 + air_O2_moles * (1.0 + 3.76)
+    X_mix = {}
 
-def calc_AirProperties():
-    # Given
-    T_FUEL: float = 298.0  # [K]
-    P_FUEL: float = 2e+6 # [Pa]
+    for sp in gas.species_names:
+        x_fuel = fuel_mole_frac.get(sp, 0.0)
+        x_air = air_mole_frac_scaled.get(sp, 0.0)
+        X_mix[sp] = (x_fuel + x_air) / total_moles
 
-    T_AIR: float = 700.0
-    P_AIR: float = 15e5    # [Pa] = 15 bar
+    # Set mixed stream (isenthalpic)
+    mix = ct.Solution('gri30.yaml')
+    h_fuel = fuel.enthalpy_mole
+    h_air = air.enthalpy_mole
 
-    # Constants
-    R_UNIV = 8.314462618  # J/(mol·K)
+    h_mix = (1.0 * h_fuel + air_O2_moles * (1 + 3.76) * h_air) / total_moles
 
-    # Molecular weights (kg/mol)
-    MW_O2  = Formula('O2').mass * 1e-3
-    MW_N2  = Formula('N2').mass * 1e-3
-    MW_H2  = Formula('H2').mass * 1e-3
+    mix.TP = 300, P_MIX  # Initial guess
+    mix.X = X_mix
+    mix.HP = h_mix, P_MIX  # Set enthalpy and pressure
+    mix.equilibrate('HP')
 
+    T_ad_list.append(mix.T)
 
-    MW_AIR  = 0.21 * MW_O2 + 0.79 * MW_N2
-    MW_FUEL = 2.0 * MW_H2
-
-    # Specific gas constants (J/kg.K)
-    R_AIR  = R_UNIV / MW_AIR
-    R_FUEL = R_UNIV / MW_H2
-
-    # Densities [kg/m^3]
-    DENSITY_AIR  = P_AIR  / (R_AIR  * T_AIR)
-    DENSITY_FUEL = P_FUEL / (R_FUEL * T_FUEL)
-
-    print(f"{'Quantity':<20} {'Value':>15} {'Unit':<10}")
-    print("-" * 50)
-    print(f"{'Air Density':<20} {DENSITY_AIR:>15.6f} {'kg/m3':<10}")
-    print(f"{'Air Temperature':<20} {T_AIR:>15.1f} {'K':<10}")
-    print(f"{'Air Pressure':<20} {P_AIR:>15.1f} {'Pa':<10}")
-    print("-" * 50)
-    print(f"{'Fuel Density':<20} {DENSITY_FUEL:>15.6f} {'kg/m3':<10}")
-    print(f"{'Fuel Temperature':<20} {T_FUEL:>15.1f} {'K':<10}")
-    print(f"{'Fuel Pressure':<20} {P_FUEL:>15.1f} {'Pa':<10}")
-    print("-" * 50)
-
-    return DENSITY_AIR, DENSITY_FUEL, MW_AIR, MW_FUEL
-
-
-
-if __name__ == '__main__':
-    main()
+# Plot
+plt.plot(phi_range, T_ad_list)
+plt.xlabel("Equivalence Ratio (ϕ)")
+plt.ylabel("Adiabatic Flame Temperature [K]")
+plt.title("NH₃-Air Combustion with Different Inlet Conditions")
+plt.grid(True)
+plt.show()

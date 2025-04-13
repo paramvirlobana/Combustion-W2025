@@ -54,7 +54,7 @@ def RQL(phi_first, phi_last):
             gas_c1_boundary += '%s:%.9f'%(gas_init.species_name(i),f1.Y[gas_init.species_index(gas_init.species_name(i))][-1])
         else:
             gas_c1_boundary += ',%s:%.9f'%(gas_init.species_name(i),f1.Y[gas_init.species_index(gas_init.species_name(i))][-1])
-    
+    ##################################################################################################
     # Mix the gases
     gas_a = ct.Solution(reaction_path) # Gas 'a' is the air, right after the HPC
     gas_a.TPY = 800.0, 30*ct.one_atm, 'O2:0.21, N2:0.79'
@@ -89,7 +89,7 @@ def RQL(phi_first, phi_last):
     mass_flow_rate2 = u_0 * gas2.density * area
     dz = length / n_steps
     r_vol = area * dz
-
+    #############################################################################################################################################################
     # create a new reactor
     r2 = ct.IdealGasReactor(gas2)
     r2.volume = r_vol
@@ -119,10 +119,10 @@ def RQL(phi_first, phi_last):
         # write output data
         states2.append(r2.thermo.state)
     print('Final Temperature is ',states2.T,'K')
-    print('NOx is',1000000*states2.X[-1, gas2.species_index('NO')])
+    print('NOx is',1000000*states2.Y[-1, gas2.species_index('NO')])
     
 RQL(1.5,0.4)
-
+    
 '''
 phi_last = [0.2,0.3,0.4,0.5,0.6,0.7]
 phi_first = [1.2,1.3,1.4,1.5,1.6,1.7,1.8]

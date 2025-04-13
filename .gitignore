@@ -9,6 +9,11 @@ __pycache__/
 # Custom
 lovish/
 src/data/CollectionOfMechanisms/
+report/_minted-main/
+report/-p/
+src/_obsolete
+*.aex
+*.w18
 
 # Distribution / packaging
 .Python
