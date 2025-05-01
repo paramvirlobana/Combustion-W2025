@@ -1,23 +1,8 @@
-This section talks about the process of the RQL reaction mechanism.
+Rich-Burn, Quick-Mix, Lean-Burn (RQL) was introduced in 1980 as strategy to reduce oxides of nitrogen (\ce{NOx}) emissions from gas turbine engines. Today, RQL is the anchor combustion technology in several aero engines. Due to the safety considerations and overall performance (in terms of stability), RQL is preferred over lean premixed options in aero-engine applications \cite{samuelsen2006rich}. However, in land based applications, lean premixed combustor technology is the standard since the safety considerations as not as severe. Additionally, the reduction in NO$_x$ is more substantial compared to RQL.\par \vspace{10pt}
 
+Synthetic hydrogen fuels, derived from renewable energy surplus or carbon-captured fossil fuels, offer a viable solution for large-scale energy storage. This storage capability is crucial for stabilizing power grids with high renewable penetration. The challenge is the design of efficient gas turbine systems capable of clean conversion of this stored hydrogen or ammonia into electricity when needed \cite{Lefebvre2010, dreizler2021role} Therefore, for this project, ammonia (\ce{NH3}) has been selected as the fuel.\par \vspace{10pt}
 
-
-
-
-Boundary conditions:
-
-
-
-
-T in fuel   = 500 K
-
-T in air    = 800 K  
-
-P in fuel   = 15 bar
-
-P in air    = 12 bar  
-
-
+Lean premixed combustion of ammonia is challenged by very high levels of \ce{NOx} emissions related with fuel nitrogen. However, if the combustion mechanism is changed to rich-quench-lean (RQL) approach, fuel nitrogen is released in a reducing environment favoring the formation of stable nitrogen.  The combustion mechanism used for this study is non-premixed (diffusion type), aligning with the conventional RQL framework.
 
 
 %\begin{figure}[H]
@@ -28,10 +13,3 @@ P in air    = 12 bar
 %\end{figure}
 
 
-Writing the balanced chemical equation
-
-\begin{equation}
-    \ce{4NH3 + 3(O2 + 3.76 N2) -> 2N2 + 6H2O + 11.28N2}\label{eq:balanced_reaction}
-\end{equation}
-
-In \autoref{eq:balanced_reaction}, the oxidizer nitrogen is kept separate from the inert air nitrogen to keep track.

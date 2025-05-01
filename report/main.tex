@@ -19,7 +19,7 @@
 \usepackage{fontawesome5}               % Addition of icons to the document.
 \usepackage[hidelinks]{hyperref}               % Duckies
 \usepackage{comment}                    % Used for adding comments to the document
-%\usepackage{svg}                        % To include svg format files
+\usepackage{svg}                        % To include svg format files
 \usepackage[version=4,arrows=pgf-filled,textfontname=sffamily,
 mathfontname=mathsf]{mhchem}            % Chemistry package
 
@@ -38,11 +38,11 @@ mathfontname=mathsf]{mhchem}            % Chemistry package
 \begin{frontmatter}
 
 
-\title{RQL Combustion using Ammonia \tnoteref{mytitlenote}}
+\title{Rich-Quench-Lean Combustion using Ammonia \tnoteref{mytitlenote}}
 \tnotetext[mytitlenote]{Fully documented code is available on \href{https://github.com/paramvirlobana/Combustion-W2025}{\faGithub\ github/Combustion-W2025}. Short developer guide presented in the Appendix.}
 
 %% Group authors per affiliation:
-\author[add1]{Paramvir Lobana (40119637)}
+\author[add1]{Paramvir }
 
 \address[add1]{Department of Mechanical, Industrial and Aerospace Engineering, \\ Concordia University \\ Montreal, QC, Canada}
 
@@ -52,7 +52,7 @@ mathfontname=mathsf]{mhchem}            % Chemistry package
 
 
 \begin{keyword}
-Aeroelasticity \sep Flutter Analysis \sep Dynamic Stability \sep Aircraft Wing Design
+RQL \sep Ammonia \sep Combustion \sep Cantera \sep ANSYS
 \end{keyword}
 
 \end{frontmatter}
@@ -73,6 +73,11 @@ Aeroelasticity \sep Flutter Analysis \sep Dynamic Stability \sep Aircraft Wing D
 
 \section{Results and discussion}
 \input{sections/results_discussion.tex}
+
+\section{Conclusion}
+\input{sections/conclusion}
+
+\clearpage
 
 
 \bibliography{sections/mybibfile.bib}

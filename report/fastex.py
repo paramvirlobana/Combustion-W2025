@@ -2,12 +2,13 @@ import os
 import sys
 import platform
 import subprocess
+import argparse
 
 if platform.system() == "Windows":
     __LATEXPDF = os.path.join(os.getenv('LOCALAPPDATA'), r'Programs\MiKTeX\miktex\bin\x64\pdflatex.exe')
     __LATEXBIB = os.path.join(os.getenv('LOCALAPPDATA'), r'Programs\MiKTeX\miktex\bin\x64\bibtex.exe')
 elif platform.system() == "Linux":
-    sys.exit(f"{platform.system()} systems not supported yet. Exiting.")
+    sys.exit(f"{platform.system()} systems not supported yet. Use on Windows. Exiting.")
 else:
     sys.exit(f"{platform.system()} is not a supported operating system name. Exiting.")
 
@@ -24,7 +25,7 @@ def remove_temp_files(tex_file:str):
         ".log", ".lot", ".toc", ".spl",
         ".out"
     ]
-    
+
     for ext in file_extensions:
         file_to_remove = base_name + ext
         if os.path.isfile(file_to_remove):
@@ -34,17 +35,15 @@ def remove_temp_files(tex_file:str):
             except OSError as e:
                 print(f"Could not remove {file_to_remove}: {e}")
 
-def latex_compiler(tex_file: str):
+def latex_compiler(tex_file:str):
     """
     This function compiles the LaTeX file
-
     """
-    
+
     if not os.path.isfile(__LATEXPDF):
         raise FileNotFoundError(f"pdflatex not found at '{__LATEXPDF}'")
     if not os.path.isfile(__LATEXBIB):
         raise FileNotFoundError(f"bibtex not found at '{__LATEXBIB}'")
-
     if not os.path.isfile(tex_file):
         raise FileNotFoundError(f"Cannot find '{tex_file}'")
 
@@ -60,24 +59,36 @@ def latex_compiler(tex_file: str):
         __LATEXBIB,
         os.path.splitext(os.path.basename(tex_file))[0]
     ]
-    
+
     try:
         subprocess.run(pdflatex_command, check=True)
-        subprocess.run(bibtex_command, check=True)
-        subprocess.run(pdflatex_command, check=True)
-        subprocess.run(pdflatex_command, check=True)
-        
+
+        #if os.path.isfile(os.path.splitext(tex_file)[0] + ".bib"):
+        #subprocess.run(bibtex_command, check=True)
+        #subprocess.run(pdflatex_command, check=True)
+ 
+        #ubprocess.run(pdflatex_command, check=True)
+
         print(f"Successfully compiled {tex_file}")
 
         remove_temp_files(tex_file)
-    
+
     except subprocess.CalledProcessError as e:
         print(f"An error occurred while compiling {tex_file}: {e}")
         raise
 
 if __name__ == "__main__":
-    try:
-        perf_graphs("main.tex")
-    except:
-        print('failed')
 
+    parser = argparse.ArgumentParser(description="Latex input files to be compiled..")
+    parser.add_argument('files', metavar='F', type=str, nargs='+', help='Latex input files')
+    args = parser.parse_args()
+
+    for file in args.files:
+        print(f"Compiling {file}")
+        try:
+            if file != None:
+                latex_compiler(file)
+            else:
+                continue
+        except:
+            print(f"{file} failed.")

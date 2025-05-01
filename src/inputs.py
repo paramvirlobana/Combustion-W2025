@@ -17,3 +17,6 @@ P_FUEL: float = 1.5e+6 # [Pa] = 15 bar = 1.5 MPa
 
 T_AIR: float = 800
 P_AIR: float = 1.2e+6    # [Pa] = 12 bar = 1.2 MPa
+
+# Secondary flow Inputs
+J_Secondary:float = 40      # From literature, the target momentum flux is about 40

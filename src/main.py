@@ -155,6 +155,7 @@ def secondary(silent:bool=True) -> float:
     MASSFLOW_AIR_S = MASSFLOW_AIR_GLOBAL - MASSFLOW_AIR_P
 
     if silent:
+        print(MASSFLOW_AIR_S)
         return MASSFLOW_AIR_S
     else:
         print("")
@@ -184,8 +185,6 @@ def RQL(
     # Create temp directories for storing data between separate RQL stages.
     # INIT gases
 
-    # rich_gas    = ct.Solution(SanDiegoMech)
-    # lean_gas    = ct.Solution(SanDiegoMech)
     PFR:dict = {
         'length': 0.5,     # [m]
         'radius': 0.018823,     # [m]
@@ -195,10 +194,10 @@ def RQL(
     }
 
     fuel        = ct.Solution(SanDiegoMech)
-    fuel.TPX    = T_FUEL, P_FUEL, {'NH3': 4.0}
+    fuel.TPX    = T_FUEL, P_FUEL, {'NH3': 1.0}
 
     air         = ct.Solution(SanDiegoMech)
-    air.TPX     = T_AIR, P_AIR, {'O2': 3.0, 'N2': 3*3.76}
+    air.TPX     = T_AIR, P_AIR, {'O2': 1.0, 'N2': 3.76}
 
     rich_gas_thermo, inlet_bounbdary_species = rt.mixing(gas_a=fuel, gas_b=air, mdot_a=0.007339, mdot_b=0.035631)
     
@@ -206,6 +205,7 @@ def RQL(
     rich_gas = ct.Solution(SanDiegoMech)    
     rich_gas.TPY = rich_gas_thermo.thermo.T, rich_gas_thermo.thermo.P, rich_gas_thermo.thermo.Y
     rich_flame, rich_out, rich_outlet_state = rt.rich(eqr=1.24, mixture=rich_gas)
+    print(rich_out.report())
 
     air_secondary         = ct.Solution(SanDiegoMech)
     air_secondary.TPX     = T_AIR, P_AIR, {'O2': 3.0, 'N2': 3*3.76}
